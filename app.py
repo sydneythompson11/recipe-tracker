@@ -1,4 +1,4 @@
-from database import initialize_db, add_recipe, get_all_recipes, get_recipe_with_ingredients
+from database import initialize_db, migrate_db, add_recipe, get_all_recipes, get_recipe_with_ingredients
 
 def yes_no_input(prompt):
     """Helper to get a yes/no answer and convert to 1/0."""
@@ -26,7 +26,16 @@ def add_recipe_flow():
         amount = input(f"  Amount/measurement for {ing_name}: ").strip()
         ingredients.append({"name": ing_name, "amount": amount})
 
-    add_recipe(name, source, was_good, bake_again, easy_to_follow, ingredients)
+    print("Enter the recipe instructions (press Enter twice when done):")
+    lines = []
+    while True:
+        line = input()
+        if line == "":
+            break
+        lines.append(line)
+    instructions = "\n".join(lines)
+
+    add_recipe(name, source, was_good, bake_again, easy_to_follow, ingredients, instructions)
     print(f"\nRecipe '{name}' saved!")
 
 def view_all_recipes():
@@ -56,7 +65,7 @@ def view_recipe_detail():
         print("Recipe not found.")
         return
 
-    id, name, source, was_good, bake_again, easy_to_follow = recipe
+    id, name, source, was_good, bake_again, easy_to_follow, instructions = recipe
     print(f"\n--- {name} ---")
     print(f"Source: {source}")
     print(f"Was it good? {'Yes' if was_good else 'No'}")
@@ -65,9 +74,12 @@ def view_recipe_detail():
     print("Ingredients:")
     for ing_name, amount in ingredients:
         print(f"  - {amount} {ing_name}")
+    if instructions:
+        print(f"\nInstructions:\n{instructions}")
 
 def main():
-    initialize_db()  # make sure tables exist before anything else
+    initialize_db()
+    migrate_db()  # safely adds new columns without losing existing data
     while True:
         print("\n=== Recipe Tracker ===")
         print("1. Add a recipe")

@@ -2,6 +2,21 @@ import sqlite3
 
 DB_FILE = "recipes.db"
 
+def migrate_db():
+    """Adds new columns to existing tables without losing data."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Check if 'instructions' column exists; if not, add it
+    cursor.execute("PRAGMA table_info(recipes)")
+    columns = [row[1] for row in cursor.fetchall()]
+    if "instructions" not in columns:
+        cursor.execute("ALTER TABLE recipes ADD COLUMN instructions TEXT")
+        print("Database updated: added instructions column.")
+
+    conn.commit()
+    conn.close()
+
 def get_connection():
     """Returns a connection to the SQLite database file."""
     return sqlite3.connect(DB_FILE)
@@ -37,7 +52,7 @@ def initialize_db():
     conn.commit()
     conn.close()
 
-def add_recipe(name, source, was_good, bake_again, easy_to_follow, ingredients):
+def add_recipe(name, source, was_good, bake_again, easy_to_follow, ingredients, instructions=""):
     """
     Inserts a recipe and its ingredients into the database.
     ingredients: list of dicts with 'name' and 'amount' keys
@@ -46,9 +61,9 @@ def add_recipe(name, source, was_good, bake_again, easy_to_follow, ingredients):
     cursor = conn.cursor()
 
     cursor.execute("""
-        INSERT INTO recipes (name, source, was_good, bake_again, easy_to_follow)
-        VALUES (?, ?, ?, ?, ?)
-    """, (name, source, was_good, bake_again, easy_to_follow))
+        INSERT INTO recipes (name, source, was_good, bake_again, easy_to_follow, instructions)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (name, source, was_good, bake_again, easy_to_follow, instructions))
 
     recipe_id = cursor.lastrowid  # get the ID of the recipe we just inserted
 
