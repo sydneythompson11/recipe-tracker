@@ -1,4 +1,4 @@
-from database import initialize_db, migrate_db, add_recipe, get_all_recipes, get_recipe_with_ingredients
+from database import initialize_db, migrate_db, add_recipe, get_all_recipes, get_recipe_with_ingredients, update_recipe_instructions
 
 def yes_no_input(prompt):
     """Helper to get a yes/no answer and convert to 1/0."""
@@ -77,6 +77,27 @@ def view_recipe_detail():
     if instructions:
         print(f"\nInstructions:\n{instructions}")
 
+def edit_recipe_instructions():
+    """Lets the user add or update instructions on an existing recipe."""
+    view_all_recipes()
+    try:
+        recipe_id = int(input("\nEnter recipe ID to edit instructions: "))
+    except ValueError:
+        print("Invalid ID.")
+        return
+
+    print("Enter the updated instructions (press Enter twice when done):")
+    lines = []
+    while True:
+        line = input()
+        if line == "":
+            break
+        lines.append(line)
+    instructions = "\n".join(lines)
+
+    update_recipe_instructions(recipe_id, instructions)
+    print("Instructions updated!")
+
 def main():
     initialize_db()
     migrate_db()  # safely adds new columns without losing existing data
@@ -85,7 +106,8 @@ def main():
         print("1. Add a recipe")
         print("2. View all recipes")
         print("3. View recipe details")
-        print("4. Quit")
+        print("4. Edit recipe instructions")
+        print("5. Quit")
         choice = input("Choose an option: ").strip()
 
         if choice == "1":
@@ -95,6 +117,8 @@ def main():
         elif choice == "3":
             view_recipe_detail()
         elif choice == "4":
+            edit_recipe_instructions()
+        elif choice == "5":
             print("Bye!")
             break
         else:

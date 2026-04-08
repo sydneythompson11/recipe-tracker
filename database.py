@@ -85,6 +85,14 @@ def get_all_recipes():
     conn.close()
     return rows
 
+def update_recipe_instructions(recipe_id, instructions):
+    """Updates the instructions for an existing recipe."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE recipes SET instructions = ? WHERE id = ?", (instructions, recipe_id))
+    conn.commit()
+    conn.close()
+
 def get_recipe_with_ingredients(recipe_id):
     """Returns a single recipe and all its ingredients."""
     conn = get_connection()
